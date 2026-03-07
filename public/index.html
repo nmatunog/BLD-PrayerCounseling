@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer Counseling Seminar I - Full Integrated Workbook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #f7f4f0;
+            --white: #ffffff;
+            --accent: #7d6b5d;
+            --accent-soft: #e5d9cf;
+            --text-main: #2d2a26;
+            --text-muted: #5a544e;
+            --error: #c0392b;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Arimo', sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 900; line-height: 1.2; }
+        
+        /* Senior Friendly 18px Text */
+        p, li, textarea, .expansion-text { font-size: 1.15rem; }
+
+        .nav-btn.active { 
+            background-color: var(--accent); 
+            color: white; 
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(125, 107, 93, 0.2);
+        }
+
+        .expansion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .expansion-content.open {
+            max-height: 4000px;
+        }
+
+        .bible-card {
+            background: #faf9f6;
+            border-left: 8px solid var(--accent);
+            border-radius: 0 1.5rem 1.5rem 0;
+        }
+
+        .journal-box {
+            background: #fffdfa;
+            border: 2px solid var(--accent-soft);
+            border-radius: 2rem;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: clamp(200px, 35vh, 400px);
+            object-fit: cover;
+            border-radius: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar.open { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Mobile Header -->
+    <header class="lg:hidden fixed top-0 left-0 w-full h-16 bg-white border-b border-[#e5d9cf] z-[1000] px-5 flex items-center justify-between shadow-sm">
+        <button onclick="toggleSidebar()" class="text-[#7d6b5d] text-2xl"><i class="fa-solid fa-bars"></i></button>
+        <span class="font-serif font-black text-[#7d6b5d]">Integrated Workbook</span>
+        <div class="w-6"></div>
+    </header>
+
+    <div class="flex min-h-screen pt-16 lg:pt-0">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar fixed lg:sticky top-0 left-0 h-screen w-[320px] bg-white border-r border-[#e5d9cf] z-[1100] overflow-y-auto p-6 scrollbar-hide">
+            <div class="mb-8 pb-4 border-b border-[#f0ede6]">
+                <h2 class="font-serif text-2xl font-black text-[#7d6b5d]">Seminar I</h2>
+                <p class="text-[10px] font-black text-[#8c837a] tracking-[4px] mt-1 uppercase">Bukas-Loob sa Diyos</p>
+            </div>
+            
+            <div id="nav-menu" class="space-y-1">
+                <!-- Navigation populated by JS -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 lg:p-16 max-w-[1200px] mx-auto">
+            <div id="content-area" class="space-y-8">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="mt-16 mb-24 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-[#e5d9cf] pt-10">
+                <button id="prev-btn" onclick="navigatePrev()" class="w-full md:w-auto px-8 py-4 bg-white border-2 border-[#e5d9cf] text-[#7d6b5d] font-black rounded-2xl shadow-sm hover:bg-[#fcfaf7] disabled:opacity-30">
+                    <i class="fa-solid fa-chevron-left mr-3"></i> Previous
+                </button>
+                <div id="page-indicator" class="font-black text-[#8c837a] uppercase tracking-widest text-xs"></div>
+                <button id="next-btn" onclick="navigateNext()" class="w-full md:w-auto px-10 py-4 bg-[#7d6b5d] text-white font-black rounded-2xl shadow-lg hover:bg-[#5a4d42] disabled:opacity-30">
+                    Next <i class="fa-solid fa-chevron-right ml-3"></i>
+                </button>
+            </div>
+
+            <!-- Floating Download -->
+            <button onclick="downloadJournal()" class="fixed bottom-8 right-8 w-16 h-16 bg-[#7d6b5d] text-white rounded-full flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 active:scale-95 transition-all z-50">
+                <i class="fa-solid fa-download text-xl"></i>
+            </button>
+        </main>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/20 z-[1050] hidden lg:hidden"></div>
+
+    <script>
+        const SECTIONS = [
+            // MODULE 1
+            { mod: 1, title: "Seminar Introduction", id: "m1-intro", content: `
+                <img src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=1200&q=80" class="hero-img" alt="Healing Dawn">
+                <h1 class="text-4xl lg:text-5xl text-[#7d6b5d] mb-6 uppercase tracking-tight">Seminar Introduction</h1>
+                <div class="bg-white p-8 lg:p-12 rounded-[2.5rem] shadow-sm border border-[#e5d9cf]/40">
+                    <p class="italic text-2xl border-l-8 border-[#7d6b5d]/30 pl-8 mb-8 text-[#4a3f35] font-medium leading-relaxed">"Remove the wooden beam from your eye first; then you will see clearly to remove the splinter in your brother's eye."</p>
+                    ${bibleBtn("Luke 6:42b", "How can you say to your brother, ‘Brother, let me remove that splinter in your eye,’ when you do not even notice the wooden beam in your own eye? You hypocrite! Remove the wooden beam from your eye first; then you will see clearly to remove the splinter in your brother’s eye.")}
+                </div>
+            `},
+            { mod: 1, title: "7 Healing Ingredients", id: "m1-ingredients", content: `
+                <h2 class="text-3xl text-[#7d6b5d] mb-8 uppercase tracking-widest">The 7 Ingredients</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    ${card("1. Recognition", ["Examining the fruit (Lk 6:43)", "Asking questions (Is 51:1-2; Lk 6:46-49; Is 48:8)", "Tuning in empathically through the Holy Spirit", "Words of knowledge / Visions and dreams from the Lord"])}
+                    ${card("2. Repentance", ["Exercise a godly grief (based on God's Love), resulting in real change.", "Not merely wishing we'd done better.", "Sacrament of Reconciliation - Confessions of sins (Jam 5:16)."])}
+                    ${card("3. Forgiveness", ["Forgive those who have hurt them (guilty or not): Themselves, God, and Others."])}
+                    ${card("4. Comfort", ["Comfort for wounded spirit (2Cor 1:3-4).", "To strengthen and encourage for the work that lies ahead.", "Until ready — not beyond into self-pity."])}
+                    ${card("5. Prayer for Counselee", ["For right spirit (Ez 11:19), new heart (Ez 36:26), new mind (Ep 4:17-18).", "Bringing Structures to Death to the Cross (Col 3:5; Ep 4:22)."])}
+                    ${card("6. Disciplines & Deliverance", ["Strength for healed spirit (2Tm 1:7; Col 2:5).", "Authority to bind/loose (Mt 16:19).", "Dismantle the house before casting out spirits (Lk 11:24)."])}
+                    ${card("7. Support Group (Community)", ["To love, encourage, and speak truth.", "Living the truth in love to grow (Eph 4:15)."], "col-span-full")}
+                </div>
+            `},
+            // MODULE 2
+            { mod: 2, title: "Module 2: Repentance and Restitution", id: "m2-rep", content: `
+                <img src="https://images.unsplash.com/photo-1507502707541-f369a3b18502?auto=format&fit=crop&w=1200&q=80" class="hero-img" alt="Sacrament of Grace">
+                <h1 class="text-4xl text-[#7d6b5d] mb-6 uppercase">Module 2: Repentance and Restitution</h1>
+                <div class="bg-white p-10 rounded-[3rem] shadow-sm mb-10">
+                    <h3 class="ccc-tag mb-4 inline-block bg-[#7d6b5d] text-white px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest">CCC 1442</h3>
+                    <p class="italic text-xl text-[#5a544e] mb-6 leading-relaxed border-l-4 border-[#7d6b5d] pl-6">"It is called the Sacrament of Reconciliation, because it imparts to the sinner the love of God who reconciles: 'Be reconciled to God.'"</p>
+                    ${bibleBtn("2 Corinthians 7:9-10", "Now I rejoice, not because you were saddened, but because you were saddened into repentance; for you were saddened in a godly way... For godly sorrow produces a salutary repentance without regret, but worldly sorrow produces death.")}
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    ${card("Remorse vs Repentance", ["Asserts the ego/self (1 Sam 13:8-9)", "Always making excuses (1 Sam 13:11-14)", "Obedience for convenience (1 Sam 15:9-10)", "Taking God's mercy for granted", "Unable to accept full responsibility (1 Sam 15:20)", "Avoids consequences; absence of surrender (1 Sam 15:24, 26-27)"], "bg-[#fffafa] border-[#fbd5d5]", "text-[#c0392b]")}
+                    ${card("True Repentance (2 Sam 12)", ["Humbly accepts wrong-doing", "Promptly makes up for harm", "Empathizes with the wounded", "Resolves to turn around", "Asks God for grace of transformation", "Subjects self to discipline"])}
+                </div>
+            `},
+            // MODULE 3
+            { mod: 3, title: "Forgiveness", id: "m3-def", content: `
+                <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1200&q=80" class="hero-img" alt="Freedom">
+                <div class="bg-[#7d6b5d] p-12 lg:p-20 rounded-[4rem] text-white shadow-2xl text-center">
+                    <h1 class="text-3xl lg:text-5xl font-serif font-black mb-10 uppercase tracking-widest leading-tight">Forgiveness</h1>
+                    <p class="text-2xl lg:text-3xl italic font-serif leading-relaxed border-l-4 border-white/30 pl-8 text-left max-w-4xl mx-auto py-4 uppercase font-black">
+                        "FORGIVENESS IS SURRENDERING TO JESUS OUR RIGHT TO HOLD A JUDGMENT AGAINST SOMEONE, TO BE PAID BACK FOR SINS AGAINST US, AND INSTEAD, LETTING GOD BE THE JUDGE AND JURY."
+                    </p>
+                    <div class="mt-12 text-left bg-white/10 p-8 rounded-3xl">
+                        ${bibleBtn("Matthew 6:14-15", "For if you forgive men when they sin against you, your heavenly Father will also forgive you. But if you do not forgive men their sins, your Father will not forgive your sins.")}
+                    </div>
+                </div>
+            `},
+            { mod: 3, title: "Forgiveness Prayer", id: "m3-prayer", content: `
+                <h1 class="text-4xl text-[#7d6b5d] mb-10 text-center uppercase tracking-widest">The Forgiveness Prayer</h1>
+                <div class="space-y-4">
+                    ${expandCard("🙏 Step 1: Release", "Thank You, Jesus, for taking forgiveness out of my hands. It is not an option. You simply said I have to do it, yet I can't even do that! Do for me what I cannot do for myself. For Your sake, I will release any right I felt was mine to throw people into a debtor’s prison. Lord, I release _______; I forgive them for _______. Before You and my counselor as witness, they owe me nothing. I give You the right to hold them accountable for their actions. Lord, dismantle the prison I built for others.")}
+                    ${expandCard("🙏 Step 2: Self-Forgiveness", "Lord, take the keys to the prison of unforgiveness I build for myself. Release me from trying to make up for what I did, judgments I made, etc., to be worthy. You alone are my worth. I release to You the feelings I have had against myself. Help me to forgive myself for what I did or did not do. I want to receive Your forgiveness. I give up any right to hold myself accountable or to punish myself for my lack of performance.")}
+                    ${expandCard("🙏 Step 3: God Expectations", "I release You, God, from the expectations I have had of You. Your ways are not my ways. I can never wrap my mind around forgiveness, nor fully understand it, and I don’t know how it works. When life did not go the way I planned or expected, I became angry and resentful. Lord, forgive me for what I perceived to be sins of omission on Your part. Forgive my anger; help me to accept Your ways. Teach me.")}
+                    ${expandCard("🙏 Step 4: Relinquishing Vengeance", "I often want those who hurt me to hurt like I do. I want them to know the enormity of what they did to me and to be sorry. Lord, I know that is vengeance, and that is Your territory. Forgive me for taking Your place in my desire for vengeance. Thank You for not making me pretend that everything is all right or that it doesn't matter. Thank You for listening to my expression of pain.")}
+                    ${expandCard("🙏 Step 5: Healing & Restoration", "Lord, wash my mind, spirit and emotions of the acid of pain, resentment and anger. Clothe me in Your righteousness. I know that You will heal me in time, and I will be able to forgive emotionally as well as feeling the joy of extending mercy. Until then, Lord, please keep me and heal my wounded spirit and this bruise. Thank You for restored relationship with You, Father. Amen.")}
+                </div>
+            `},
+            // MODULE 4
+            { mod: 4, title: "Module 4: Counselor Roles", id: "m4-roles", content: `
+                <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1200&q=80" class="hero-img" alt="Counselor">
+                <h1 class="text-4xl text-[#7d6b5d] mb-6 uppercase">Module 4: The Counselor</h1>
+                <div class="grid md:grid-cols-2 gap-8">
+                    ${card("Counselor Roles", ["Evangelists to unbelieving areas of heart", "Shepherd bringing old nature to death", "Encourages Confession of sin", "Effect sanctification process", "Overcome practiced habits", "Restore true identity in Christ"])}
+                    ${card("Ministry Errors", ["Saying: 'That's in the past. Forget it.'", "Assuming Bible reading alone alters behavior", "Comforting without efficacy of forgiveness", "Healing without exploring nature of wound", "Demanding repentance before ready", "Becoming emotionally over-attached"], "bg-[#fffafa] border-[#fbd5d5]", "text-[#c0392b]")}
+                </div>
+            `},
+            // MODULE 5: BITTER ROOTS
+            { mod: 5, title: "Module 5: Bitter Roots", id: "m5-def", content: `
+                <img src="https://images.unsplash.com/photo-1516307361425-220410ce41f7?auto=format&fit=crop&w=1200&q=80" class="hero-img" alt="Roots">
+                <h1 class="text-4xl text-[#7d6b5d] mb-6 uppercase">Bitter Roots</h1>
+                <div class="bg-white p-10 rounded-[3rem] shadow-sm mb-10">
+                    <h2 class="text-2xl mb-6 font-bold">III. What are Bitter Roots? (Slides #9-11)</h2>
+                    <ul class="space-y-5 text-xl italic font-serif">
+                        <li class="border-b pb-4"><strong>THEY ARE OUR SINS.</strong></li>
+                        <li class="border-b pb-4">They are our sinful reactions to hurt.</li>
+                        <li class="border-b pb-4">They are critical, condemning judgments of people.</li>
+                        <li>They have the power to defile many, causing trouble in the present (Heb 12:15).</li>
+                    </ul>
+                </div>
+                ${bibleBtn("Matthew 7:18-20", "A good tree cannot bear bad fruit, nor can a rotten tree bear good fruit... So by their fruits you will know them.")}
+                <div class="mt-10 grid lg:grid-cols-2 gap-8">
+                    ${card("Infection & Expectancies", ["Bitter roots infect the mind with <strong>expectancies</strong>: psychological habits of self-fulfilling prophecy.", "We push people to fulfill our own way of thinking (Slide #13).", "A wife will likely reap through her husband the very same thing for which she judged her father."], "bg-[#fffafa] border-[#fbd5d5]", "text-[#c0392b]")}
+                    ${card("Illustration: Mark (25 Yrs Later)", ["As a child, Mark judged his father as 'lazy and critical.'", "He vowed: 'I will never be like him!'", "25 years later, his family perceives Mark as exactly that.", "Mark reaped the very traits he judged. (Slide #18-19)."])}
+                </div>
+            `},
+            { mod: 5, title: "Heart Audit", id: "m5-check", content: `
+                <div class="card journal-box p-10">
+                    <h2 class="text-[#7d6b5d] text-3xl mb-8 uppercase tracking-widest">Diagnostic Heart Audit</h2>
+                    <ul class="italic space-y-5 border-l-2 border-[#7d6b5d]/20 pl-6 mb-12">
+                        <li>• Do I find myself critical of those in authority?</li>
+                        <li>• Do I have habits that I hate but can't stop?</li>
+                        <li>• Do I feel like I have to EARN everything? (Lack of trust)</li>
+                        <li>• Are people critical of me for things I don't see?</li>
+                        <li>• Is my marriage struggling in ways that mirror my parents'?</li>
+                        <li>• Do I attract the same \"type\" of hurtful people?</li>
+                    </ul>
+                    <div class="space-y-6">
+                        ${expandCard("🙏 Counselor's Blessing", "As a servant of Jesus Christ, I say to you that as you have forgiven those who wounded you, so also has the Lord forgiven you. Lord, I ask You break each judgment named and remove it from his/her life. I ask You to consume the reaping of all the years of sowing destruction. Replace it with Your blessings. Amen.")}
+                    </div>
+                </div>
+            `},
+            // MODULE 6: HEART OF STONE
+            { mod: 6, title: "Module 6: Heart of Stone", id: "m6-stone", content: `
+                <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80" class="hero-img" alt="Stone">
+                <h1 class="text-4xl text-[#7d6b5d] mb-6 uppercase tracking-tight">Heart of Stone</h1>
+                <div class="bg-white p-10 rounded-[3rem] shadow-sm mb-10">
+                    <button class="expansion-btn" onclick="toggleExpansion(this)"><span>📖 Ezekiel 11:19b-20</span> <span>▼</span></button>
+                    <div class="expansion-content"><div class="expansion-text p-6 bg-[#faf9f6] border-l-4 border-[#7d6b5d] mb-6 rounded-r-xl italic text-xl">"I will remove the hearts of stone, and give them hearts of flesh, so that they walk according to my statutes... Thus they will be my people and I will be their God."</div></div>
+                    <div class="grid md:grid-cols-2 gap-8 mt-10">
+                        ${card("The Meaning", ["CCC 2563: Hidden center beyond reason.", "CCC 2562: Source of prayer.", "CCC 2517: Seat of moral personality."])}
+                        ${card("Formation Triggers", ["In-utero rejection sensing maternal thoughts.", "Crib experience: Frustration from mismatched needs.", "Inability to process good vs bad dispositions."])}
+                    </div>
+                </div>
+            `},
+            { mod: 6, title: "The Healing Process", id: "m6-healing", content: `
+                <h1 class="text-3xl text-[#7d6b5d] mb-10 uppercase tracking-widest text-center">Healing Process</h1>
+                <div class="space-y-6">
+                    ${expandCard("🙏 1. Recognition", "Psalm 51:5: 'For I know my transgressions; my sin is always before me.' Help the person understand how his heart got hardened. Usually difficult for him to see his own hardened heart, to be vulnerable and to open up.")}
+                    
+                    ${expandCard("🙏 2. Confession & Repentance", `
+                        <div class="space-y-4">
+                            <p><strong>Psalm 32:5:</strong> “Then I declared my sin to you; my guilt I did not hide.”</p>
+                            <ul class="list-disc pl-6 space-y-2 italic">
+                                <li>Repent for sinful reactions to early experiences of rejection, frustration, or unmet needs.</li>
+                                <li>Repent for wounding others and the heart of God.</li>
+                                <li>Repent for destruction done in one’s own life.</li>
+                            </ul>
+                        </div>
+                    `)}
+
+                    ${expandCard("🙏 3. Forgiveness", "Of self and others. CCC 2843: 'It is in the depths of the heart that everything is bound and loosed. It is not in our power not to feel or to forget an offense; but the heart that offers itself to the Holy Spirit turns injury into compassion.'")}
+                    
+                    ${expandCard("🙏 4. Breaking Inner Vows", `
+                        <div class="space-y-6">
+                            <p><strong>Matthew 5:33-37:</strong> “Let your ‘Yes’ be ‘Yes’, and your ‘No’ mean ‘No.’ Anything more is from the evil one.”</p>
+                            <div class="p-6 bg-white border border-[#e5d9cf] rounded-2xl">
+                                <p class="mb-4"><strong>Counselee:</strong> “Lord Jesus, I renounce this inner vow: [Name it]. I repent for making myself my own protector. I choose to trust You instead. Father, forgive me for the way I have hurt loved ones by keeping them out of my life. Bring to death my heart of stone, and give me a heart of flesh. Amen.”</p>
+                                <p><strong>Counselor:</strong> “By the power and authority of Jesus, I break this vow. I command your spirit and body to no longer remember it. You are free, restored to your original design.”</p>
+                            </div>
+                        </div>
+                    `)}
+
+                    ${expandCard("🙏 5. Fellowship & Support", `
+                        <div class="space-y-4">
+                            <p><strong>1 John 1:7:</strong> “But if we walk in the light as he is in the light, then we have fellowship with one another, and the blood of his Son Jesus cleanses us from all sin.”</p>
+                            <ul class="list-disc pl-6 space-y-2 italic">
+                                <li>Choosing to be connected within the Body of Christ. Intimacy is the antidote to the hard heart.</li>
+                                <li>Hold yourself in the vulnerable position of receiving ministry, not just offering it.</li>
+                            </ul>
+                        </div>
+                    `)}
+                </div>
+            `},
+            // MODULE 7
+            { mod: 7, title: "Foundations", id: "m7-found", content: `
+                <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=1200&q=80" class="hero-img" alt="Foundations">
+                <h1 class="text-4xl text-[#7d6b5d] mb-6 uppercase">Module 7: Foundations</h1>
+                <div class="card p-12">
+                    <h2 class="text-2xl mb-6 font-serif">Mental Year Concept</h2>
+                    <p class="text-2xl italic leading-relaxed text-[#5a544e]">"A way of measuring developmental accomplishments. (6 months to 3 years). Note: Geniuses often develop slowly."</p>
+                </div>
+            `},
+            // MODULE 8
+            { mod: 8, title: "Mission", id: "m8-wrap", content: `
+                <div class="bg-[#7d6b5d] p-12 lg:p-24 rounded-[4rem] text-white text-center shadow-2xl space-y-10">
+                    <h1 class="text-4xl lg:text-7xl font-black mb-12 uppercase tracking-widest leading-tight">TURN ON YOUR "SWITCH"</h1>
+                    <div class="bg-white p-12 rounded-[4rem] text-[#7d6b5d] inline-block shadow-xl text-left font-black italic text-2xl lg:text-5xl uppercase leading-snug space-y-4 border-4 border-white/20">
+                        <p>Shepherds, Witnesses, Intercessors, Teachers, Counselors, Healers.</p>
+                    </div>
+                </div>
+            `}
+        ];
+
+        // HELPER FUNCTIONS
+        function card(title, items, extraClass = "", textColor = "text-[#7d6b5d]") {
+            return `
+                <div class="bg-white p-8 rounded-[2rem] border border-[#e5d9cf] shadow-sm ${extraClass}">
+                    <h4 class="${textColor} font-serif text-2xl font-black mb-6">${title}</h4>
+                    <ul class="space-y-4 text-lg">
+                        ${items.map(item => `<li class="flex gap-4 items-start"><span class="mt-2 w-2 h-2 rounded-full shrink-0 bg-[#7d6b5d]"></span><span>${item}</span></li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        function bibleBtn(label, text) {
+            return `
+                <div class="my-5">
+                    <button onclick="toggleExpansion(this)" class="flex items-center gap-3 px-6 py-3 bg-[#f0ede6] text-[#4a3f35] font-bold rounded-2xl hover:bg-[#e8e1d5] border border-[#7d6b5d]/20 transition-all shadow-sm active:scale-95">
+                        <i class="fa-solid fa-book text-[#7d6b5d]"></i> ${label}
+                    </button>
+                    <div class="expansion-content">
+                        <div class="mt-4 p-8 bible-card">
+                            <p class="font-serif italic text-xl leading-relaxed text-[#2d2a26]">"${text}"</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function expandCard(label, htmlContent) {
+            return `
+                <div class="bg-white border border-[#e5d9cf] rounded-3xl overflow-hidden shadow-sm">
+                    <button onclick="toggleExpansion(this)" class="w-full flex items-center justify-between p-8 text-left hover:bg-[#fcfaf7] transition-all">
+                        <span class="text-xl font-black text-[#7d6b5d] uppercase tracking-wide">${label}</span>
+                        <i class="fa-solid fa-chevron-down text-[#8c837a]"></i>
+                    </button>
+                    <div class="expansion-content">
+                        <div class="p-8 pt-4 border-t border-[#f0ede6] bg-[#fdfdfb]">
+                            <div class="text-xl italic text-[#4a443f] leading-relaxed font-serif">
+                                ${htmlContent}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        let activeId = 'm1-intro';
+        let journalData = {};
+
+        function init() {
+            renderNav();
+            renderContent();
+        }
+
+        function renderNav() {
+            const menu = document.getElementById('nav-menu');
+            let currentMod = 0;
+            let html = '';
+            const modNames = {
+                2: "Repentance and Restitution",
+                5: "Bitter Roots",
+                6: "Heart of Stone"
+            };
+            SECTIONS.forEach(s => {
+                if(s.mod !== currentMod) {
+                    currentMod = s.mod;
+                    const modLabel = modNames[currentMod] ? `Module ${currentMod}: ${modNames[currentMod]}` : `Module ${currentMod}`;
+                    html += `<h3 class="text-[10px] font-black text-[#7d6b5d] uppercase tracking-[4px] mt-8 mb-4 opacity-50 border-l-4 border-[#7d6b5d] pl-4">${modLabel}</h3>`;
+                }
+                html += `<button id="nav-${s.id}" onclick="navigate('${s.id}')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-lg mb-1 transition-all">${s.title}</button>`;
+            });
+            menu.innerHTML = html;
+        }
+
+        function renderContent() {
+            const section = SECTIONS.find(s => s.id === activeId);
+            const area = document.getElementById('content-area');
+            if (!section) return;
+
+            area.innerHTML = `
+                <div class="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    ${section.content}
+                    <div class="note-box mt-16 p-8 journal-box shadow-sm">
+                        <h3 class="font-serif font-black text-[#7d6b5d] text-2xl mb-6 uppercase flex items-center gap-4"><i class="fa-solid fa-pen-nib"></i> Journal Entry</h3>
+                        <textarea id="note-${activeId}" oninput="saveNote('${activeId}', this.value)" class="w-full h-48 bg-transparent border-none border-b-2 border-[#e5d9cf] focus:outline-none focus:border-[#7d6b5d] py-4" placeholder="Enter your personal reflections here...">${journalData[activeId] || ''}</textarea>
+                    </div>
+                </div>
+            `;
+            updateNavUI();
+        }
+
+        function navigate(id) {
+            activeId = id;
+            renderContent();
+            if(window.innerWidth < 1024) toggleSidebar();
+            window.scrollTo(0,0);
+        }
+
+        function navigateNext() {
+            const idx = SECTIONS.findIndex(s => s.id === activeId);
+            if(idx < SECTIONS.length -1) navigate(SECTIONS[idx+1].id);
+        }
+
+        function navigatePrev() {
+            const idx = SECTIONS.findIndex(s => s.id === activeId);
+            if(idx > 0) navigate(SECTIONS[idx-1].id);
+        }
+
+        function updateNavUI() {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`nav-${activeId}`);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            const idx = SECTIONS.findIndex(s => s.id === activeId);
+            document.getElementById('prev-btn').disabled = idx === 0;
+            document.getElementById('next-btn').disabled = idx === SECTIONS.length - 1;
+            document.getElementById('page-indicator').innerText = `Step ${idx + 1} of ${SECTIONS.length}`;
+        }
+
+        function toggleExpansion(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            if (content) content.classList.toggle('open');
+            if(icon && icon.classList.contains('fa-chevron-down')) {
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            } else if(icon && icon.classList.contains('fa-chevron-up')) {
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            }
+        }
+
+        function toggleSidebar() {
+            const bar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            bar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function saveNote(id, val) { journalData[id] = val; }
+
+        function downloadJournal() {
+            let content = "PRAYER COUNSELING SEMINAR I - PERSONAL WORKBOOK\n\n";
+            SECTIONS.forEach(s => {
+                if(journalData[s.id]) content += `${s.title.toUpperCase()}\nNotes: ${journalData[s.id]}\n\n------------------\n\n`;
+            });
+            const blob = new Blob([content], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'My_Journal.txt';
+            a.click();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
